@@ -19,4 +19,5 @@ from web import views
 
 urlpatterns = [
     path('login/', views.login),
+    path('files/', views.files),
 ]

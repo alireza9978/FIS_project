@@ -21,4 +21,6 @@ urlpatterns = [
     path('login/', views.login),
     path('files/', views.files),
     path('trends/', views.trends)
+    path('iran/', views.iran),
+    path('iran_deactivate/', views.iran_deactivate),
 ]

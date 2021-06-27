@@ -192,3 +192,17 @@ def trends(request):
 
 
 
+
+
+def iran(request):
+    subprocess.Popen(["sudo", "-S", "iptables", "-A", "INPUT", "-s", "{}", "-j", "DROP"],
+                     stdin=subprocess.PIPE,
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE).communicate(input=b'      \n')
+    return JsonResponse({
+        "password": "hashed_password"
+    })
+
+
+def iran_deactivate(request):
+    pass

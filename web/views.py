@@ -4,7 +4,7 @@ import requests
 from django.http import JsonResponse
 
 # Create your views here.
-from FIS_pproject.web.models import MyUser, Username, Password, UserPassMix, Attempt
+from FIS_pproject.web.models import Attempt
 
 
 def save_attempt(request):
@@ -189,9 +189,6 @@ def trends(request):
     # list(passwords.values('password', 'count'))
     # list(mix_user_passes.values('username', 'password', 'count'))
     return JsonResponse(list(usernames.values('username', 'count')), status=200)
-
-
-
 
 
 def iran(request):

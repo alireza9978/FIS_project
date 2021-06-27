@@ -20,4 +20,6 @@ from web import views
 urlpatterns = [
     path('login/', views.login),
     path('files/', views.files),
+    path('iran/', views.iran),
+    path('iran_deactivate/', views.iran_deactivate),
 ]

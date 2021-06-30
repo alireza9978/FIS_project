@@ -1,5 +1,6 @@
-from django.db import models
 import datetime
+
+from django.db import models
 
 
 # Create your models here.
@@ -23,6 +24,7 @@ class UserPassMix(models.Model):
     username = models.CharField(max_length=255)
     password = models.CharField(max_length=400)
     count = models.IntegerField(default=1)
+
 
 class Attempt(models.Model):
     attempt_id = models.AutoField(primary_key=True)

@@ -4,7 +4,7 @@ import requests
 from django.http import JsonResponse
 
 # Create your views here.
-from FIS_pproject.web.models import Attempt
+from web.models import *
 
 
 def save_attempt(request):

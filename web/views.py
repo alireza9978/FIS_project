@@ -1,3 +1,4 @@
+import json
 import subprocess
 
 import requests
@@ -8,7 +9,8 @@ from web.models import *
 
 
 def save_attempt(request):
-    data = request.POST
+    request = json.load(request)
+    data = request
     username = data['username']
     password = data['password']
     if 'REMOTE_ADDR' in request.META.keys():
@@ -75,47 +77,69 @@ def save_attempt(request):
 
 
 def register(request):
-    data = request.POST
-    if 'username' not in data.keys() or 'password' not in data.keys():
+    # save_attempt(request)
+    request = json.load(request)
+    data = request
+    if 'username' not in request.keys():
         return JsonResponse({
             'message': 'Bad credentials'}, status=400)
-    if 'email' not in data.keys():
+    elif 'password' not in request.keys():
+        return JsonResponse({
+            'message': 'Bad credentials'}, status=400)
+    if 'email' not in request.keys():
         return JsonResponse({
             'message': 'no email provided'}, status=400)
 
     username = data['username']
     password = data['password']
     email = data['email']
-
-    user_count = Username.objects.filter(username=username).count() + 1
-    pass_count = Password.objects.filter(password=password).count + 1
-    user_pass_count = UserPassMix.objects.filter(username=username, password=password).count + 1
     new_user = MyUser(username=username, password=password, email=email)
     new_user.save()
 
-    new_username = Username(username=username, count=user_count)
-    new_username.save()
+    user_count = Username.objects.filter(username=username).count()
+    pass_count = Password.objects.filter(password=password).count()
+    user_pass_count = UserPassMix.objects.filter(username=username, password=password).count()
 
-    new_password = Password(password=password, count=pass_count)
-    new_password.save()
+    if user_count != 0:
+        add_user_name = Username.objects.filter(username=username)
+        add_user = add_user_name.first()
+        add_user.count = add_user.count + 1
+        add_user.save()
+    else:
+        new_username = Username(username=username, count=1)
 
-    userpass = UserPassMix(username=username, password=password, count=user_pass_count)
-    userpass.save()
+    if pass_count != 0:
+        add_password = Password.objects.filter(password=password)
+        add_password = add_password.first()
+        add_password.count = add_password.count + 1
+        add_password.save()
+    else:
+        new_password = Password(password=password, count=1)
 
-    save_attempt(request)
-
+    if user_pass_count != 0:
+        add_mix = UserPassMix.objects.filter(username=username, password=password)
+        add_mix = add_mix.first()
+        add_mix.count = add_mix.count + 1
+        add_mix.save()
+    else:
+        userpass = UserPassMix(username=username, password=password, count=1)
     return JsonResponse({'message': 'user registered'}, status=200)
 
 
 def login(request):
-    data = request.POST
-    if 'username' not in data.keys() or 'password' not in data.keys():
+    # save_attempt(request)
+    request = json.load(request)
+    data = request
+    if 'username' not in data.keys():
+        return JsonResponse({
+            'message': 'Bad credentials'}, status=400)
+    if 'password' not in data.keys():
         return JsonResponse({
             'message': 'Bad credentials'}, status=400)
 
     username = data['username']
     password = data['password']
-    save_attempt(request=request)
+    # save_attempt(request=request)
 
     # username = "mmd"
     # password = "1234"
@@ -152,12 +176,14 @@ def login(request):
 
 
 def files(request):
-    data = request.POST
+    # save_attempt(request)
+    request = json.load(request)
+    data = request
     if 'username' not in data.keys():
         return JsonResponse({
             'message': 'Bad credentials'}, status=400)
 
-    save_attempt(request=request)
+    # save_attempt(request=request)
 
     username = data['username']
     # user = "afshari"
@@ -182,13 +208,23 @@ def files(request):
 
 
 def trends(request):
-    save_attempt(request=request)
+    # save_attempt(request)
+    request = json.load(request)
     usernames = Username.objects.order_by('count')
     passwords = Password.objects.order_by('count')
     mix_user_passes = UserPassMix.objects.order_by('count')
-    # list(passwords.values('password', 'count'))
-    # list(mix_user_passes.values('username', 'password', 'count'))
-    return JsonResponse(list(usernames.values('username', 'count')), status=200)
+
+    msg = ""
+    user_list = list(usernames.values('username', 'count'))
+    for username in user_list:
+        msg = msg + str(username.username) + str(username.count)
+    pass_list = list(passwords.values('password', 'count'))
+    for password in pass_list:
+        msg = msg + str(password.password) + str(password.count)
+    mix_list = list(mix_user_passes.values('username', 'password', 'count'))
+    for mix in mix_list:
+        msg = msg + str(mix.username) + str(mix.password) + str(mix.count)
+    return JsonResponse({'message': msg}, status=200)
 
 
 def iran(request):

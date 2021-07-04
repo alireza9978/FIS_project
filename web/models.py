@@ -29,7 +29,6 @@ class UserPassMix(models.Model):
 class Attempt(models.Model):
     attempt_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=255, default="")
-    password = models.CharField(max_length=255, default="")
     datetime = models.DateTimeField(default=datetime.datetime.now())
     ip = models.GenericIPAddressField(null=False, editable=False, default="")
     user_agent = models.CharField(max_length=511, default="")

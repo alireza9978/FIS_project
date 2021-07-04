@@ -9,66 +9,66 @@ from web.models import *
 
 
 def save_attempt(request):
-    request = json.load(request)
+    request = request.META
     data = request
-    username = data['username']
-    password = data['password']
-    if 'REMOTE_ADDR' in request.META.keys():
-        ip = request.META['REMOTE_ADDR']
+    username = data['USERNAME']
+    # password = data['PASSWORD']
+    if 'REMOTE_ADDR' in request.keys():
+        ip = request['REMOTE_ADDR']
     else:
         ip = None
-    if 'HTTP_USER_AGENT' in request.META.keys():
-        user_agent = request.META['HTTP_USER_AGENT']
+    if 'HTTP_USER_AGENT' in request.keys():
+        user_agent = request['HTTP_USER_AGENT']
     else:
         user_agent = None
-    if 'CONTENT_LENGTH' in request.META.keys():
-        content_length = request.META['CONTENT_LENGTH']
-    content_type = request.content_type
-    if 'HTTP_HOST' in request.META.keys():
-        host = request.META['HTTP_HOST']
+    if 'CONTENT_LENGTH' in request.keys():
+        content_length = request['CONTENT_LENGTH']
+    content_type = request['CONTENT_TYPE']
+    if 'HTTP_HOST' in request.keys():
+        host = request['HTTP_HOST']
     else:
         host = None
-    if 'HTTP_ACCEPT' in request.META.keys():
-        accept = request.META['HTTP_ACCEPT']
+    if 'HTTP_ACCEPT' in request.keys():
+        accept = request['HTTP_ACCEPT']
     else:
         accept = None
-    if 'HTTP_ACCEPT_LANGUAGE' in request.META.keys():
-        accept_language = request.META['HTTP_ACCEPT_LANGUAGE']
+    if 'HTTP_ACCEPT_LANGUAGE' in request.keys():
+        accept_language = request['HTTP_ACCEPT_LANGUAGE']
     else:
         accept_language = None
-    if 'HTTP_ACCEPT_ENCODING' in request.META.keys():
-        accept_encoding = request.META['HTTP_ACCEPT_ENCODING']
+    if 'HTTP_ACCEPT_ENCODING' in request.keys():
+        accept_encoding = request['HTTP_ACCEPT_ENCODING']
     else:
         accept_encoding = None
-    if 'SERVER_NAME' in request.META.keys():
-        server_name = request.META['SERVER_NAME']
+    if 'SERVER_NAME' in request.keys():
+        server_name = request['SERVER_NAME']
     else:
         server_name = None
-    if 'SERVER_PORT' in request.META.keys():
-        server_port = request.META['SERVER_PORT']
+    if 'SERVER_PORT' in request.keys():
+        server_port = request['SERVER_PORT']
     else:
         server_port = None
-    if 'HTTP_REFERER' in request.META.keys():
-        referer = request.META['HTTP_REFERER']
+    if 'HTTP_REFERER' in request.keys():
+        referer = request['HTTP_REFERER']
     else:
         referer = None
-    if "REQUEST_METHOD" in request.META.keys():
-        method = request.META["REQUEST_METHOD"]
+    if "REQUEST_METHOD" in request.keys():
+        method = request["REQUEST_METHOD"]
     else:
         method = 'POST'
-    if 'QUERY_STRING' in request.META.keys():
-        query_string = request.META['QUERY_STRING']
+    if 'QUERY_STRING' in request.keys():
+        query_string = request['QUERY_STRING']
     else:
         query_string = None
-    if 'HTTP_COOKIE' in request.META.keys():
-        cookie = request.META['HTTP_COOKIE']
+    if 'HTTP_COOKIE' in request.keys():
+        cookie = request['HTTP_COOKIE']
     else:
         cookie = None
     r = requests.get(url=f"https://ip2c.org/{ip}")
     country = r.content.decode('ascii').split(';')
     country = country[len(country) - 1]
 
-    new_attempt = Attempt(username=username, password=password, ip=ip, user_agent=user_agent,
+    new_attempt = Attempt(username=username, ip=ip, user_agent=user_agent,
                           content_length=content_length, content_type=content_type, host=host, accept=accept,
                           accept_language=accept_language, accept_encoding=accept_encoding, server_name=server_name,
                           server_port=server_port, referer=referer, method=method, query_string=query_string,
@@ -77,7 +77,7 @@ def save_attempt(request):
 
 
 def register(request):
-    # save_attempt(request)
+    save_attempt(request)
     request = json.load(request)
     data = request
     if 'username' not in request.keys():
@@ -128,7 +128,7 @@ def register(request):
 
 def login(request):
     # save_attempt(request)
-    request = json.load(request)
+    request = json.loads(request)
     data = request
     if 'username' not in data.keys():
         return JsonResponse({

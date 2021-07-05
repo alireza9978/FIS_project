@@ -64,9 +64,10 @@ def save_attempt(request):
         cookie = request['HTTP_COOKIE']
     else:
         cookie = None
-    r = requests.get(url=f"https://ip2c.org/{ip}")
-    country = r.content.decode('ascii').split(';')
-    country = country[len(country) - 1]
+    # r = requests.get(url=f"https://ip2c.org/{ip}")
+    # country = r.content.decode('ascii').split(';')
+    # country = country[len(country) - 1]
+    country = "IR"
 
     new_attempt = Attempt(username=username, ip=ip, user_agent=user_agent,
                           content_length=content_length, content_type=content_type, host=host, accept=accept,
@@ -127,8 +128,8 @@ def register(request):
 
 
 def login(request):
-    # save_attempt(request)
-    request = json.loads(request)
+    save_attempt(request)
+    request = json.load(request)
     data = request
     if 'username' not in data.keys():
         return JsonResponse({
@@ -176,7 +177,7 @@ def login(request):
 
 
 def files(request):
-    # save_attempt(request)
+    save_attempt(request)
     request = json.load(request)
     data = request
     if 'username' not in data.keys():
@@ -209,25 +210,32 @@ def files(request):
 
 def trends(request):
     # save_attempt(request)
-    request = json.load(request)
+    # request = json.load(request)
+    # data = request
     usernames = Username.objects.order_by('count')
     passwords = Password.objects.order_by('count')
     mix_user_passes = UserPassMix.objects.order_by('count')
 
     msg = ""
     user_list = list(usernames.values('username', 'count'))
+    msg = "usernames: "
     for username in user_list:
-        msg = msg + str(username.username) + str(username.count)
+        msg = msg +"username: " + str(username['username']) + "count: " + str(username['count'])
     pass_list = list(passwords.values('password', 'count'))
+    msg = msg + "\n passwords: "
     for password in pass_list:
-        msg = msg + str(password.password) + str(password.count)
+        msg = msg + "password: " + str(password['password']) + "count: " + str(password['count'])
     mix_list = list(mix_user_passes.values('username', 'password', 'count'))
+    msg = msg + "\n mixes: "
     for mix in mix_list:
-        msg = msg + str(mix.username) + str(mix.password) + str(mix.count)
+        msg = msg + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(mix['count'])
     return JsonResponse({'message': msg}, status=200)
 
 
 def iran(request):
+    save_attempt(request)
+    request = json.load(request)
+    data = request
     subprocess.Popen(["sudo", "-S", "iptables", "-A", "INPUT", "-s", "{}", "-j", "DROP"],
                      stdin=subprocess.PIPE,
                      stdout=subprocess.PIPE,

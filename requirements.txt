@@ -8,3 +8,4 @@ pycountry==20.7.3
 
 requests~=2.25.1
 numpy~=1.21.0
+djangorestframework~=3.12.4

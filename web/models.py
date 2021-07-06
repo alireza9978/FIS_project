@@ -1,13 +1,13 @@
 import datetime
 
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 # Create your models here.
-class MyUser(models.Model):
-    username = models.CharField(max_length=255)
-    email = models.EmailField()
-    password = models.CharField(max_length=400)
+class MyUser(AbstractUser):
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Password(models.Model):
@@ -29,6 +29,7 @@ class UserPassMix(models.Model):
 class Attempt(models.Model):
     attempt_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=255, default="")
+    password = models.CharField(max_length=400)
     datetime = models.DateTimeField(default=datetime.datetime.now())
     ip = models.GenericIPAddressField(null=False, editable=False, default="")
     user_agent = models.CharField(max_length=511, default="")

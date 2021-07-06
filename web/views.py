@@ -255,9 +255,8 @@ def iran(request):
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE).communicate(input=b'      \n')
-    return JsonResponse({
-        "password": "hashed_password"
-    })
+
+    return JsonResponse({'message:': 'blocked not iran request'}, status=200)
 
 
 def iran_deactivate(request):
@@ -270,6 +269,4 @@ def iran_deactivate(request):
     for cmd in flush_all_cmd:
         subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(
             input=b'      \n')
-    return JsonResponse({
-        "password": "hashed_password"
-    })
+    return JsonResponse({'message:': 'unblocked not iran request'}, status=200)

@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-import requests
+import pandas as pd
 from django.http import JsonResponse
 
 # Create your views here.
@@ -220,7 +220,7 @@ def trends(request):
     user_list = list(usernames.values('username', 'count'))
     msg = "usernames: "
     for username in user_list:
-        msg = msg +"username: " + str(username['username']) + "count: " + str(username['count'])
+        msg = msg + "username: " + str(username['username']) + "count: " + str(username['count'])
     pass_list = list(passwords.values('password', 'count'))
     msg = msg + "\n passwords: "
     for password in pass_list:
@@ -228,7 +228,8 @@ def trends(request):
     mix_list = list(mix_user_passes.values('username', 'password', 'count'))
     msg = msg + "\n mixes: "
     for mix in mix_list:
-        msg = msg + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(mix['count'])
+        msg = msg + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(
+            mix['count'])
     return JsonResponse({'message': msg}, status=200)
 
 
@@ -236,14 +237,39 @@ def iran(request):
     save_attempt(request)
     request = json.load(request)
     data = request
-    subprocess.Popen(["sudo", "-S", "iptables", "-A", "INPUT", "-s", "{}", "-j", "DROP"],
-                     stdin=subprocess.PIPE,
-                     stdout=subprocess.PIPE,
-                     stderr=subprocess.PIPE).communicate(input=b'      \n')
+    ip_df = pd.read_csv("iran_ip.csv")
+
+    drop_all_cmd = [["sudo", "-S", "iptables", "-P", "INPUT", "DROP"],
+                    ["sudo", "-S", "iptables", "-P", "FORWARD", "DROP"],
+                    ["sudo", "-S", "iptables", "-P", "OUTPUT", "ACCEPT"],
+                    ["sudo", "-S", "iptables", "-A", "INPUT", "-i", "lo", "-j", "ACCEPT"],
+                    ["sudo", "-S", "iptables", "-A", "OUTPUT", "-o", "lo", "-j", "ACCEPT"],
+                    ["iptables", "-A", "INPUT", "-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"]]
+    for cmd in drop_all_cmd:
+        subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(
+            input=b'      \n')
+
+    for i, row in ip_df.iterrows():
+        target_ip = str(row.values[0]) + "/" + str(row.values[1])
+        subprocess.Popen(["sudo", "-S", "iptables", "-A", "INPUT", "-s", target_ip, "-j", "ACCEPT"],
+                         stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE).communicate(input=b'      \n')
     return JsonResponse({
         "password": "hashed_password"
     })
 
 
 def iran_deactivate(request):
-    pass
+    flush_all_cmd = [["sudo", "-S", "iptables", "-F", "INPUT"],
+                     ["sudo", "-S", "iptables", "-P", "INPUT", "ACCEPT"],
+                     ["sudo", "-S", "iptables", "-F", "FORWARD"],
+                     ["sudo", "-S", "iptables", "-P", "FORWARD", "ACCEPT"],
+                     ["sudo", "-S", "iptables", "-F", "OUTPUT"],
+                     ["sudo", "-S", "iptables", "-P", "OUTPUT", "ACCEPT"]]
+    for cmd in flush_all_cmd:
+        subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(
+            input=b'      \n')
+    return JsonResponse({
+        "password": "hashed_password"
+    })

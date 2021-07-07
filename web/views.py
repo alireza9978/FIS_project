@@ -12,6 +12,8 @@ from rest_framework.decorators import api_view
 # Create your views here.
 from web.models import *
 
+unix_password = "12345678"
+
 
 class CsrfExemptSessionAuthentication(authentication.SessionAuthentication):
     def enforce_csrf(self, request):
@@ -178,7 +180,8 @@ class LoginView(views.APIView):
         # password = "qwer"
 
         proc = subprocess.Popen(["sudo", "-S", "cat", "/etc/shadow"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE).communicate(input=b'      \n')
+                                stderr=subprocess.PIPE).communicate(input="{}\n".format(unix_password).encode())
+
         users = proc[0].decode().split("\n")
         user_found = False
         founded_user = None
@@ -232,7 +235,9 @@ def files(request):
     system_files = subprocess.Popen(["sudo", "-S", "ls", "./files/"],
                                     stdin=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE).communicate(input=b'      \n')[0].decode("utf-8").split(
+                                    stderr=subprocess.PIPE).communicate(input="{}\n".format(unix_password).encode())[
+                       0].decode(
+        "utf-8").split(
         "\n")[:-1]
 
     message = []
@@ -290,14 +295,14 @@ def iran(request):
                     ["iptables", "-A", "INPUT", "-m", "conntrack", "--ctstate", "ESTABLISHED,RELATED", "-j", "ACCEPT"]]
     for cmd in drop_all_cmd:
         subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(
-            input=b'      \n')
+            input="{}\n".format(unix_password).encode())
 
     for i, row in ip_df.iterrows():
         target_ip = str(row.values[0]) + "/" + str(row.values[1])
         subprocess.Popen(["sudo", "-S", "iptables", "-A", "INPUT", "-s", target_ip, "-j", "ACCEPT"],
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE).communicate(input=b'      \n')
+                         stderr=subprocess.PIPE).communicate(input="{}\n".format(unix_password).encode())
 
     return JsonResponse({'message:': 'blocked not iran request'}, status=200)
 
@@ -313,7 +318,7 @@ def iran_deactivate(request):
                      ["sudo", "-S", "iptables", "-P", "OUTPUT", "ACCEPT"]]
     for cmd in flush_all_cmd:
         subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(
-            input=b'      \n')
+            input="{}\n".format(unix_password).encode())
     return JsonResponse({'message:': 'unblocked not iran request'}, status=200)
 
 

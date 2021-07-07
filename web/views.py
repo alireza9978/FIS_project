@@ -48,16 +48,26 @@ def save_trends(username, password):
         userpass = UserPassMix.objects.create(username=username, password=password, count=1)
 
 
+def get_client_ip(requestmeta):
+    x_forwarded_for = requestmeta.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = requestmeta.get('REMOTE_ADDR')
+    return ip
+
+
 def save_attempt(request):
     username = request.data['username']
     password = request.data['password']
     request = request.META
     data = request
     save_trends(username=username, password=password)
-    if 'REMOTE_ADDR' in request.keys():
-        ip = request['REMOTE_ADDR']
-    else:
-        ip = None
+    # if 'REMOTE_ADDR' in request.keys():
+    #     ip = request['REMOTE_ADDR']
+    # else:
+    #     ip = None
+    ip = get_client_ip(request)
     if 'HTTP_USER_AGENT' in request.keys():
         user_agent = request['HTTP_USER_AGENT']
     else:

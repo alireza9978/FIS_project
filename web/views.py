@@ -281,7 +281,7 @@ def trends(request):
         msg_srt = msg_srt + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(
             mix['count'])
     msg.append(msg_srt)
-     return JsonResponse({'message': msg}, status=200)
+    return JsonResponse({'message': msg}, status=200)
 
 
 @api_view(['GET'])

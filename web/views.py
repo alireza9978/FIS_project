@@ -49,8 +49,8 @@ def save_trends(username, password):
 
 
 def save_attempt(request):
-    username = request.data['username']
-    password = request.data['password']
+    username = request.data['username'].decode('utf-8')
+    password = request.data['password'].decode('utf-8')
     request = request.META
     data = request
     save_trends(username=username, password=password)
@@ -106,7 +106,7 @@ def save_attempt(request):
     else:
         cookie = None
     r = requests.get(url=f"https://ip2c.org/{ip}")
-    country = r.content.decode('ascii').split(';')
+    country = r.content.decode('utf8').split(';')
     country = country[len(country) - 1]
     # country = "IR"
 

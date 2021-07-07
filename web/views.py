@@ -118,9 +118,11 @@ def save_attempt(request):
     else:
         cookie = None
     r = requests.get(url=f"https://ip2c.org/{ip}")
-    country = r.content.decode('utf8').split(';')
-    country = country[len(country) - 1]
-    # country = "IR"
+    if r.status_code != 200 :
+        country = "UNKNOWN"
+    else:
+        country = r.content.decode('utf8').split(';')
+        country = country[len(country) - 1]
 
     new_attempt = Attempt(username=username, ip=ip, user_agent=user_agent,
                           content_length=content_length, content_type=content_type, host=host, accept=accept,
@@ -199,15 +201,14 @@ class LoginView(views.APIView):
                 input=(password + "\n").encode())[
                                         0].decode("utf-8")[:-1]
             if hashed_password == hashed_input_password:
-                print("user authenticated")
                 try:
                     django_user = MyUser.objects.get(username=username)
+                    login(request, django_user)
+                    return JsonResponse({'message': 'login successful'}, status=200)
                 except MyUser.DoesNotExist:
                     django_user = MyUser.objects.create_user(username=username, password=password)
-                login(request, django_user)
-                return JsonResponse({'message': 'login successful'}, status=200)
+                    return JsonResponse({'message': 'Bad credentials'}, status=400)
             else:
-                print("wrong password")
                 return JsonResponse({'message': 'Bad credentials'}, status=400)
         else:
             print("user not found")
@@ -224,7 +225,7 @@ def main_page(request):
 @api_view(['GET'])
 @login_required()
 def files(request):
-    # save_attempt(request)
+    save_attempt(request)
     # if 'username' not in request.data.keys():
     #     return JsonResponse({
     #         'message': 'Bad credentials'}, status=400)
@@ -257,7 +258,7 @@ def files(request):
 @api_view(['GET'])
 @login_required()
 def trends(request):
-    # save_attempt(request)
+    save_attempt(request)
     # request = json.load(request)
     # data = request
     usernames = Username.objects.order_by('count')
@@ -287,7 +288,7 @@ def trends(request):
 @api_view(['GET'])
 @login_required()
 def iran(request):
-    # save_attempt(request)
+    save_attempt(request)
     ip_df = pd.read_csv("iran_ip.csv")
 
     drop_all_cmd = [["sudo", "-S", "iptables", "-P", "INPUT", "DROP"],
@@ -313,6 +314,7 @@ def iran(request):
 @api_view(['GET'])
 @login_required()
 def iran_deactivate(request):
+    save_attempt(request)
     flush_all_cmd = [["sudo", "-S", "iptables", "-F", "INPUT"],
                      ["sudo", "-S", "iptables", "-P", "INPUT", "ACCEPT"],
                      ["sudo", "-S", "iptables", "-F", "FORWARD"],
@@ -327,6 +329,7 @@ def iran_deactivate(request):
 
 @api_view(['GET'])
 def logout_view(request):
+    save_attempt(request)
     if request.user.is_authenticated:
         logout(request)
     return JsonResponse({'message': 'logout successfully'}, status=200)

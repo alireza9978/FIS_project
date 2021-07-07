@@ -49,8 +49,8 @@ def save_trends(username, password):
 
 
 def save_attempt(request):
-    username = request.data['username'].decode('utf-8')
-    password = request.data['password'].decode('utf-8')
+    username = request.data['username']
+    password = request.data['password']
     request = request.META
     data = request
     save_trends(username=username, password=password)

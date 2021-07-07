@@ -284,7 +284,7 @@ def trends(request):
 @api_view(['GET'])
 @login_required()
 def iran(request):
-    save_attempt(request)
+    # save_attempt(request)
     ip_df = pd.read_csv("iran_ip.csv")
 
     drop_all_cmd = [["sudo", "-S", "iptables", "-P", "INPUT", "DROP"],

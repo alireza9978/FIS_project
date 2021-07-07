@@ -264,21 +264,24 @@ def trends(request):
     passwords = Password.objects.order_by('count')
     mix_user_passes = UserPassMix.objects.order_by('count')
 
-    msg = ""
+    msg = []
     user_list = list(usernames.values('username', 'count'))
-    msg = "usernames: "
+    msg_srt = "usernames: "
     for username in user_list:
-        msg = msg + "username: " + str(username['username']) + "count: " + str(username['count'])
+        msg_srt = msg_srt + "username: " + str(username['username']) + "count: " + str(username['count'])
+    msg.append(msg_srt)
     pass_list = list(passwords.values('password', 'count'))
-    msg = msg + "\n passwords: "
+    msg_srt = "passwords: "
     for password in pass_list:
-        msg = msg + "password: " + str(password['password']) + "count: " + str(password['count'])
+        msg_srt = msg_srt + "password: " + str(password['password']) + "count: " + str(password['count'])
+    msg.append(msg_srt)
     mix_list = list(mix_user_passes.values('username', 'password', 'count'))
-    msg = msg + "\n mixes: "
+    msg_srt = "mixes: "
     for mix in mix_list:
-        msg = msg + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(
+        msg_srt = msg_srt + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(
             mix['count'])
-    return JsonResponse({'message': msg}, status=200)
+    msg.append(msg_srt)
+    return JsonResponse({'message': msg_srt}, status=200)
 
 
 @api_view(['GET'])

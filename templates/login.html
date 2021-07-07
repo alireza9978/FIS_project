@@ -1,5 +1,8 @@
-<html>
-<head></head>
+<html lang="en-IR">
+<head>
+    <meta charset="UTF-8">
+    <title>AmniatProject</title>
+</head>
 <body>
 <div class="mt-2 col-md-12"></div>
 
@@ -7,9 +10,13 @@
 
     <form method="post" autocomplete="off" action="{% url 'web-login-api' %}">
         <p>Username</p>
-        <input type="text" name="username">
+        <label>
+            <input type="text" name="username">
+        </label>
         <p>Password</p>
-        <input type="password" name="password">
+        <label>
+            <input type="password" name="password">
+        </label>
         <input type="submit" value="Log in">
         <input type="hidden" name="next" value="{{ request.GET.next }}">
 

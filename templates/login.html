@@ -1,0 +1,19 @@
+<html>
+<head></head>
+<body>
+<div class="mt-2 col-md-12"></div>
+
+<div class="d-flex justify-content-center">
+
+    <form method="post" autocomplete="off" action="{% url 'web-login-api' %}">
+        <p>Username</p>
+        <input type="text" name="username">
+        <p>Password</p>
+        <input type="password" name="password">
+        <input type="submit" value="Log in">
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+    </form>
+</div>
+</body>
+</html>

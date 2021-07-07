@@ -1,15 +1,13 @@
-import json
 import subprocess
 
-import requests
-from django.contrib.auth import logout,login
-from django.contrib.auth.decorators import login_required
-from rest_framework import views, permissions, authentication
-from rest_framework.decorators import api_view, authentication_classes
-
 import pandas as pd
-
+import requests
+from django.contrib.auth import logout, login
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.shortcuts import render
+from rest_framework import views, permissions, authentication
+from rest_framework.decorators import api_view
 
 # Create your views here.
 from web.models import *
@@ -55,7 +53,7 @@ def save_attempt(request):
     password = request.data['password']
     request = request.META
     data = request
-    save_trends(username=username,password=password)
+    save_trends(username=username, password=password)
     if 'REMOTE_ADDR' in request.keys():
         ip = request['REMOTE_ADDR']
     else:
@@ -192,7 +190,7 @@ class LoginView(views.APIView):
                 try:
                     django_user = MyUser.objects.get(username=username)
                 except MyUser.DoesNotExist:
-                    django_user = MyUser.objects.create_user(username=username,password=password)
+                    django_user = MyUser.objects.create_user(username=username, password=password)
                 login(request, django_user)
                 return JsonResponse({'message': 'login successful'}, status=200)
             else:
@@ -201,6 +199,13 @@ class LoginView(views.APIView):
         else:
             print("user not found")
             return JsonResponse({'message': 'user not found'}, status=403)
+
+
+def main_page(request):
+    if request.user.is_authenticated:
+        return JsonResponse({'message': "hi"}, status=200)
+    else:
+        return render(request, 'login.html', status=200)
 
 
 @api_view(['GET'])
@@ -219,18 +224,19 @@ def files(request):
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE).communicate(input=b'      \n')[0].decode("utf-8").split(
         "\n")[:-1]
+
+    message = []
     for file_name in system_files:
         command = "sudo -u " + username + " test -r ./files/" + file_name
         result = subprocess.Popen(command.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         result.communicate()
         if result.returncode == 0:
-            message = "{} have access to {}".format(username, file_name)
-            return JsonResponse({'message': message}, status=200)
-
+            message.append("{} have access to {}".format(username, file_name))
         else:
-            message = "{} doesn't have access to {}".format(username, file_name)
-            return JsonResponse({'message': message}, status=200)
+            message.append("{} doesn't have access to {}".format(username, file_name))
+
+    return JsonResponse({'message': message}, status=200)
 
 
 @api_view(['GET'])

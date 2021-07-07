@@ -268,18 +268,18 @@ def trends(request):
     user_list = list(usernames.values('username', 'count'))
     msg_srt = "usernames: "
     for username in user_list:
-        msg_srt = msg_srt + "username: " + str(username['username']) + "count: " + str(username['count'])
+        msg_srt = msg_srt + " username: " + str(username['username']) + " count: " + str(username['count'])
     msg.append(msg_srt)
     pass_list = list(passwords.values('password', 'count'))
-    msg_srt = "passwords: "
+    msg_srt = ""
     for password in pass_list:
-        msg_srt = msg_srt + "password: " + str(password['password']) + "count: " + str(password['count'])
+        msg_srt = msg_srt + " password: " + str(password['password']) + " count: " + str(password['count'])
     msg.append(msg_srt)
     mix_list = list(mix_user_passes.values('username', 'password', 'count'))
     msg_srt = "mixes: "
     for mix in mix_list:
-        msg_srt = msg_srt + "username: " + str(mix['username']) + "password: " + str(mix['password']) + "count: " + str(
-            mix['count'])
+        msg_srt = msg_srt + " username: " + str(mix['username']) + " password: " + str(
+            mix['password']) + " count: " + str(mix['count'])
     msg.append(msg_srt)
     return JsonResponse({'message': msg}, status=200)
 

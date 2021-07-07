@@ -60,10 +60,10 @@ def get_client_ip(requestmeta):
 
 
 def save_attempt(request):
+    content_length = 0
     if request.method == 'GET':
         username = request.user.username
         password = request.user.password
-        content_length = 0
     elif request.method == 'POST':
         username = request.data['username']
         password = request.data['password']
@@ -71,10 +71,7 @@ def save_attempt(request):
             content_length = request.META['CONTENT_LENGTH']
     request = request.META
     save_trends(username=username, password=password)
-    if 'REMOTE_ADDR' in request.keys():
-        ip = request['REMOTE_ADDR']
-    else:
-        ip = None
+    ip = get_client_ip(request)
     if 'HTTP_USER_AGENT' in request.keys():
         user_agent = request['HTTP_USER_AGENT']
     else:

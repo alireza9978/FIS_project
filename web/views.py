@@ -76,7 +76,10 @@ def save_attempt(request):
         user_agent = request['HTTP_USER_AGENT']
     else:
         user_agent = None
-    content_type = request['CONTENT_TYPE']
+    if 'CONTENT_TYPE' in request.keys():
+        content_type = request['CONTENT_TYPE']
+    else:
+        content_type = "None"
     if 'HTTP_HOST' in request.keys():
         host = request['HTTP_HOST']
     else:
@@ -118,7 +121,7 @@ def save_attempt(request):
     else:
         cookie = None
     r = requests.get(url=f"https://ip2c.org/{ip}")
-    if r.status_code != 200 :
+    if r.status_code != 200:
         country = "UNKNOWN"
     else:
         country = r.content.decode('utf8').split(';')
@@ -198,8 +201,7 @@ class LoginView(views.APIView):
             my_command = 'openssl passwd -6 -salt {}'.format(salt)
             hashed_input_password = subprocess.Popen(my_command.split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                                      stderr=subprocess.PIPE).communicate(
-                input=(password + "\n").encode())[
-                                        0].decode("utf-8")[:-1]
+                input=(password + "\n").encode())[0].decode("utf-8")[:-1]
             if hashed_password == hashed_input_password:
                 try:
                     django_user = MyUser.objects.get(username=username)
@@ -225,7 +227,7 @@ def main_page(request):
 @api_view(['GET'])
 @login_required()
 def files(request):
-    save_attempt(request)
+    # save_attempt(request)
     # if 'username' not in request.data.keys():
     #     return JsonResponse({
     #         'message': 'Bad credentials'}, status=400)
@@ -258,7 +260,7 @@ def files(request):
 @api_view(['GET'])
 @login_required()
 def trends(request):
-    save_attempt(request)
+    # save_attempt(request)
     # request = json.load(request)
     # data = request
     usernames = Username.objects.order_by('count')
@@ -267,28 +269,31 @@ def trends(request):
 
     msg = []
     user_list = list(usernames.values('username', 'count'))
-    msg_srt = ""
+    temp_msg = []
     for username in user_list:
-        msg_srt = msg_srt + "username: " + str(username['username']) + " count: " + str(username['count'])
-    msg.append(msg_srt)
+        temp_msg.append("username: " + str(username['username']) + " count: " + str(username['count']))
+    msg.append(temp_msg)
+
     pass_list = list(passwords.values('password', 'count'))
-    msg_srt = ""
+    temp_msg = []
     for password in pass_list:
-        msg_srt = msg_srt + "password: " + str(password['password']) + " count: " + str(password['count'])
-    msg.append(msg_srt)
+        temp_msg.append("password: " + str(password['password']) + " count: " + str(password['count']))
+    msg.append(temp_msg)
+
     mix_list = list(mix_user_passes.values('username', 'password', 'count'))
-    msg_srt = "mixes: "
+    temp_msg = []
     for mix in mix_list:
-        msg_srt = msg_srt + " username: " + str(mix['username']) + " password: " + str(
-            mix['password']) + " count: " + str(mix['count'])
-    msg.append(msg_srt)
+        temp_msg.append("mixes: username: " + str(mix['username']) + " password: " + str(
+            mix['password']) + " count: " + str(mix['count']))
+    msg.append(temp_msg)
+
     return JsonResponse({'message': msg}, status=200)
 
 
 @api_view(['GET'])
 @login_required()
 def iran(request):
-    save_attempt(request)
+    # save_attempt(request)
     ip_df = pd.read_csv("iran_ip.csv")
 
     drop_all_cmd = [["sudo", "-S", "iptables", "-P", "INPUT", "DROP"],
@@ -314,7 +319,7 @@ def iran(request):
 @api_view(['GET'])
 @login_required()
 def iran_deactivate(request):
-    save_attempt(request)
+    # save_attempt(request)
     flush_all_cmd = [["sudo", "-S", "iptables", "-F", "INPUT"],
                      ["sudo", "-S", "iptables", "-P", "INPUT", "ACCEPT"],
                      ["sudo", "-S", "iptables", "-F", "FORWARD"],
@@ -329,7 +334,7 @@ def iran_deactivate(request):
 
 @api_view(['GET'])
 def logout_view(request):
-    save_attempt(request)
+    # save_attempt(request)
     if request.user.is_authenticated:
         logout(request)
     return JsonResponse({'message': 'logout successfully'}, status=200)
